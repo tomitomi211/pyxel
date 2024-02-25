@@ -23,16 +23,16 @@ class App:
         # 重力系変数
         self.gravity = 0
         self.MAX_GRAVITY = self.gravity
-        self.POWER = 0.25
+        self.POWER = 0.15
  
-        # 爆弾の生成用
+        # ハズレの音符
         self.bomb = [(i * 60, randint(0, 104)) for i in range(3,15)]
  
-        # 遠い雲
-        self.far_cloud = [(10, 25), (70, 35), (120, 15), (44, 45), (67, 75), (110, 95)]
+        # 正解の音符
+        self.note = [(10, 10), (70, 35), (120, 15)]
  
-        # 近い雲
-        self.near_cloud = [(20, 15), (40, 75), (110, 40)]
+        # 正解の音符2
+        self.note_2 = [(20, 150), (40, 75), (120, 400)]
  
         #音再生
         pyxel.playm(0, loop=True)
@@ -92,7 +92,7 @@ PUSH ENTER RESTART
         # 雲の表示(遠い)
         offset = (pyxel.frame_count // 8) % 160
         for i in range(2):
-            for x, y in self.far_cloud:
+            for x, y in self.note:
                 pyxel.blt(x + i * 160 - offset, y, 0, 0, 56, 22, 8, 12)
  
         # キャラクタ表示
@@ -106,9 +106,9 @@ PUSH ENTER RESTART
  
         # 雲の表示(近く)
         offset = (pyxel.frame_count // 2) % 160
-        for i in range(2):
-            for x, y in self.near_cloud:
-                pyxel.blt(x + i * 160 - offset, y, 0, 32, 56, 22, 8, 12)
+        # for i in range(2):
+        #     for x, y in self.note_2:
+        #         pyxel.blt(x + i * 160 - offset, y, 0, 32, 56, 22, 8, 12)
  
         # スコア表示
         s = "SCORE {:>4}".format(self.score)
@@ -179,11 +179,11 @@ PUSH ENTER RESTART
         #爆弾の生成用
         self.bomb = [(i * 60, randint(0, 104)) for i in range(3,15)]
  
-        #遠い雲
-        self.far_cloud = [(10, 25), (70, 35), (120, 15), (44, 45), (67, 75), (110, 95)]
+        # #遠い雲
+        # self.note = [(10, 25), (70, 35), (120, 15), (44, 45), (67, 75), (110, 95)]
  
-        #近い雲
-        self.near_cloud = [(20, 15), (40, 75), (110, 40)]
+        # #近い雲
+        # self.note_2 = [(20, 15), (40, 75), (110, 40)]
  
         #音再生
         pyxel.playm(0, loop=True)
