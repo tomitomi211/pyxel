@@ -1,6 +1,14 @@
 import pyxel
 from  random import randint
  
+
+
+
+
+
+
+
+
 class App:
     def __init__(self):
         pyxel.init(160, 120)
@@ -29,13 +37,13 @@ class App:
         self.bomb = [(i * 60, randint(0, 104)) for i in range(3,15)]
  
         # 正解の音符
-        self.note = [(10, 10), (70, 35), (120, 15)]
+        self.note = [(5, 10), (70, 35), (120, 15)] #x座標、y座標、最後のは何？
  
         # 正解の音符2
-        self.note_2 = [(20, 150), (40, 75), (120, 400)]
+        # self.note_2 = [(20, 150), (40, 75), (120, 400)]
  
         #音再生
-        pyxel.playm(0, loop=True)
+        # pyxel.playm(0, loop=True)
  
         pyxel.run(self.update, self.draw)
  
@@ -77,11 +85,10 @@ class App:
         if self.GAMEOVER:
  
             MESSAGE =\
-"""
-     GAMEOVER
- 
-PUSH ENTER RESTART
-"""
+                """
+                    GAMEOVER
+                    PUSH ENTER RESTART
+                """
             pyxel.text(51, 40, MESSAGE, 1)
             pyxel.text(50, 40, MESSAGE, 7)
             return
@@ -89,11 +96,11 @@ PUSH ENTER RESTART
         # 背景表示
         pyxel.bltm(0, 0, 0, 0, 0, 20, 16, 0)
  
-        # 雲の表示(遠い)
+        # ハズレの音符の移動の描画
         offset = (pyxel.frame_count // 8) % 160
         for i in range(2):
             for x, y in self.note:
-                pyxel.blt(x + i * 160 - offset, y, 0, 0, 56, 22, 8, 12)
+                pyxel.blt(x + i * 160 , y, 0, 0, 56, 2, 8, 12)
  
         # キャラクタ表示
         if not self.GAMEOVER:
@@ -101,7 +108,13 @@ PUSH ENTER RESTART
  
         # 爆弾表示
         for x, y in self.bomb:
-            pyxel.blt(x, y, 0, 32, 0, 16, 16, 7)
+            pyxel.blt( # pyxel.blt(x, y, img, u, v, w, h, colkey)
+                x, y, # x, y: 画像を描画する座標。
+                0, # img: 描画する画像のインデックスまたはファイル名。Pyxelでは画像は16x16ピクセルのタイルとして扱われます。
+                30, 33, # u, v: 画像の描画元の座標（左上の座標）。
+                16, 20, # w, h: 描画する画像の幅と高さ。
+                7 # colkey: カラーキー。指定された色を透明として扱います。
+            )
  
  
         # 雲の表示(近く)
@@ -141,21 +154,23 @@ PUSH ENTER RESTART
             self.player_y = pyxel.height - 16
  
  
-    #爆弾更新
+
+    # 爆弾更新
     def update_bomb(self, x, y):
-        if abs(x - self.player_x) < 12 and abs(y - self.player_y) < 12:
+        if abs(x - self.player_x) < 12 and abs(y - self.player_y) < 12: #absは絶対値をとる関数
             self.GAMEOVER = True
-            pyxel.blt(x, y, 0, 48, 0, 16, 16, 0)
+            pyxel.blt(x, y, 0, 48, 0, 16, 16, 0) #pyxe.bltは指定された座標に画像を描画するための関数
             pyxel.blt(self.player_x, self.player_y, 0, 16, 0, 16, 16, 0)
             
-            pyxel.stop()
+            pyxel.stop() # Pyxelゲームのメインループを停止するための関数
         x -= 2
  
         if x < -40:
             x += 240
-            y = randint(0, 104)
+            y = randint(0, 104) #指定された範囲内の整数をランダムに生成する関数
  
         return (x, y)
+    
  
     def reset(self):
         # STARTFLAG
