@@ -1,15 +1,10 @@
 import pyxel
 from  random import randint
- 
-
-
-
-
-
 
 
 
 class App:
+    # 属性の設定
     def __init__(self):
         pyxel.init(160, 120)
  
@@ -24,28 +19,27 @@ class App:
         # スコア用変数
         self.score = 0
  
-        # プレイヤー初期地位
-        self.player_x = 20
+        # プレイヤー初期位置
+        self.player_x = 10
         self.player_y = 60
         
         # 重力系変数
-        self.gravity = 0
+        self.gravity = 2.5
         self.MAX_GRAVITY = self.gravity
-        self.POWER = 0.15
+        self.POWER = 0.25
  
-        # ハズレの音符
+        # ハズレの音符の表示の初期位置の変数
+        # 以下の乱数発生は右側の画面外にて、初期位置のみを決定している。
         self.bomb = [(i * 60, randint(0, 104)) for i in range(3,15)]
  
-        # 正解の音符
-        self.note = [(5, 10), (70, 35), (120, 15)] #x座標、y座標、最後のは何？
- 
-        # 正解の音符2
-        # self.note_2 = [(20, 150), (40, 75), (120, 400)]
  
         #音再生
         # pyxel.playm(0, loop=True)
  
+
+        # run関数の引数にはフレーム更新処理を行うupdate関数と、描画処理を行うdraw関数を指定します
         pyxel.run(self.update, self.draw)
+
  
 
 
@@ -55,7 +49,6 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
  
-        
         #スペース押された場合
         if pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_START):
             self.START = True
@@ -64,20 +57,19 @@ class App:
         # if self.GAMEOVER and (pyxel.btn(pyxel.KEY_ENTER or pyxel.btn(pyxel.GAMEPAD1_BUTTON_START))) :
             self.reset()
  
- 
         if not self.START or self.GAMEOVER:
             return
  
         #プレイヤーの更新
         self.update_player()
  
-        #爆弾の表示
+        #ハズレ音符の表示
         for i, v in enumerate(self.bomb):
             self.bomb[i] = self.update_bomb(*v)
  
         # スコア
         if not self.GAMEOVER:
-            self.score += 1
+            self.score += 10
  
  
 
@@ -94,19 +86,22 @@ class App:
             return
  
         # 背景表示
-        pyxel.bltm(0, 0, 0, 0, 0, 20, 16, 0)
+        # pyxel.bltm(20, 0, 0, 0, 0, 20, 16, 0)
  
-        # ハズレの音符の移動の描画
-        offset = (pyxel.frame_count // 8) % 160
-        for i in range(2):
-            for x, y in self.note:
-                pyxel.blt(x + i * 160 , y, 0, 0, 56, 2, 8, 12)
+        # 動いていない表示している模様
+        # offset = (pyxel.frame_count // 16) % 160
+        # for i in range(2):
+        #     for x, y in self.note:
+        #         pyxel.blt(x + i * 160 , y, 0, 0, 56, 2, 8, 12)
  
+
         # キャラクタ表示
         if not self.GAMEOVER:
             pyxel.blt(self.player_x, self.player_y, 0, 0, 0, 16, 16, 0)
  
-        # 爆弾表示
+
+
+        # ハズレの音符の移動の描画
         for x, y in self.bomb:
             pyxel.blt( # pyxel.blt(x, y, img, u, v, w, h, colkey)
                 x, y, # x, y: 画像を描画する座標。
@@ -118,7 +113,7 @@ class App:
  
  
         # 雲の表示(近く)
-        offset = (pyxel.frame_count // 2) % 160
+        # offset = (pyxel.frame_count // 2) % 160
         # for i in range(2):
         #     for x, y in self.note_2:
         #         pyxel.blt(x + i * 160 - offset, y, 0, 32, 56, 22, 8, 12)
@@ -129,42 +124,53 @@ class App:
         pyxel.text(4, 4, s, 7)
  
         if not self.START:
-            MESSAGE ="PUSH SPACE KEY"
-            pyxel.text(61, 50, MESSAGE, 1)
-            pyxel.text(60, 50, MESSAGE, 7)
+            MESSAGE ="START=SPACE, STOP=Q"
+            pyxel.text(30, 50, MESSAGE, 7)
             return
  
-    # プレイヤー更新関数
+
+    # プレイヤー更新
     def update_player(self):
- 
+        # プレイヤーの更新を行うメソッド
+        
+        # スペースキーが押されている場合、重力を適用する
         if pyxel.btn(pyxel.KEY_SPACE):
-        # if pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.GAMEPAD_1_A):
             if self.gravity > -self.MAX_GRAVITY:
                 self.gravity = self.gravity - self.POWER
         else:
+            # スペースキーが押されていない場合、重力を逆向きに適用する
             if self.gravity < self.MAX_GRAVITY:
                 self.gravity = self.gravity + self.POWER
- 
+        
+        # 重力に応じてプレイヤーのY座標を更新する
         self.player_y = self.player_y + self.gravity 
- 
-        if( 0 > self.player_y ):
+        
+        # プレイヤーのY座標が画面上端より上に行かないようにする
+        if self.player_y < 0:
             self.player_y = 0
- 
-        if( self.player_y > pyxel.height -16 ):
+        
+        # プレイヤーのY座標が画面下端より下に行かないようにする
+        if self.player_y > pyxel.height - 16:
             self.player_y = pyxel.height - 16
- 
+
  
 
-    # 爆弾更新
+    # ハズレの音符の移動
     def update_bomb(self, x, y):
+
+        # ゲームオーバーか否かの判定処理
+        # ゲームオーバーの条件に合致する場合
         if abs(x - self.player_x) < 12 and abs(y - self.player_y) < 12: #absは絶対値をとる関数
             self.GAMEOVER = True
-            pyxel.blt(x, y, 0, 48, 0, 16, 16, 0) #pyxe.bltは指定された座標に画像を描画するための関数
+            pyxel.blt(x, y, 0, 48, 0, 16, 16, 0) #pyxel.bltは指定された座標に画像を描画するための関数
             pyxel.blt(self.player_x, self.player_y, 0, 16, 0, 16, 16, 0)
             
-            pyxel.stop() # Pyxelゲームのメインループを停止するための関数
+            pyxel.stop() # 音楽を停止するため
+
+        # こいつのおかげで位置移動している
         x -= 2
- 
+
+        # これ何度も同じインスタンスを表示されているみたいだな
         if x < -40:
             x += 240
             y = randint(0, 104) #指定された範囲内の整数をランダムに生成する関数
@@ -172,6 +178,7 @@ class App:
         return (x, y)
     
  
+    # ゲームオーバーになった時の再表示
     def reset(self):
         # STARTFLAG
         self.START = True
